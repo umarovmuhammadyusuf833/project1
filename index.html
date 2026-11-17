@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Official Apple Website Clone — Professional Edition</title>
+    <meta name="description" content="Explore the world of Apple. Shop iPhone, Mac, iPad, Apple Watch, Vision Pro, AirPods, and more. Experience pure premium design.">
+    <!-- Google Fonts - SF Pro Display approximation (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS CDN for pristine utility classes and styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    },
+                    colors: {
+                        appleDark: '#1d1d1f',
+                        appleGray: '#f5f5f7',
+                        appleText: '#86868b',
+                        appleBlue: '#0066cc',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Apple-style animations and refinements */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #000;
+            color: #f5f5f7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .glass-nav {
+            background: rgba(22, 22, 23, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .glass-dropdown {
+            background: rgba(29, 29, 31, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+        }
+
+        /* Scroll reveal initial state */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hide scrollbar for carousels */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Custom glow effects for Apple Vision Pro & Special banners */
+        .glow-effect {
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-black text-white selection:bg-blue-500 selection:text-white">
+
+    <!-- GLOBAL NAVBAR -->
+    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-white/10 transition-all duration-300">
+        <div class="max-w-[1024px] mx-auto px-4 h-12 flex items-center justify-between text-xs font-normal tracking-wide">
+            <!-- Apple Logo -->
+            <a href="#" class="text-white hover:text-white/70 transition text-lg px-2" aria-label="Apple Home">
+                <i class="fa-brands fa-apple"></i>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center space-x-7 text-white/80">
+                <a href="#store" class="hover:text-white transition nav-link" data-dropdown="store">Store</a>
+                <a href="#mac" class="hover:text-white transition nav-link" data-dropdown="mac">Mac</a>
+                <a href="#ipad" class="hover:text-white transition nav-link" data-dropdown="ipad">iPad</a>
+                <a href="#iphone" class="hover:text-white transition nav-link" data-dropdown="iphone">iPhone</a>
+                <a href="#watch" class="hover:text-white transition nav-link" data-dropdown="watch">Watch</a>
+                <a href="#vision" class="hover:text-white transition nav-link" data-dropdown="vision">Vision</a>
+                <a href="#airpods" class="hover:text-white transition nav-link" data-dropdown="airpods">AirPods</a>
+                <a href="#tv-home" class="hover:text-white transition nav-link" data-dropdown="tv">TV & Home</a>
+                <a href="#entertainment" class="hover:text-white transition nav-link" data-dropdown="entertainment">Entertainment</a>
+                <a href="#accessories" class="hover:text-white transition nav-link" data-dropdown="accessories">Accessories</a>
+                <a href="#support" class="hover:text-white transition nav-link" data-dropdown="support">Support</a>
+            </nav>
+
+            <!-- Utility Icons (Search & Bag) -->
+            <div class="flex items-center space-x-5 text-white/80">
+                <button id="search-btn" class="hover:text-white transition p-2" aria-label="Search">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                </button>
+                <button id="bag-btn" class="hover:text-white transition relative p-2" aria-label="Shopping Bag">
+                    <i class="fa-solid fa-bag-shopping text-sm"></i>
+                    <span id="bag-count" class="absolute top-1 right-0 bg-blue-600 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+                <!-- Mobile Menu Hamburger -->
+                <button id="mobile-menu-btn" class="md:hidden hover:text-white transition p-2 text-base" aria-label="Toggle Menu">
+                    <i class="fa-solid fa-bars" id="menu-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- MEGA MENU / DROPDOWN PANEL -->
+        <div id="mega-dropdown" class="absolute top-12 left-0 right-0 glass-dropdown border-b border-white/10 opacity-0 pointer-events-none transition-all duration-300 py-8 px-12 shadow-2xl">
+            <div class="max-w-[800px] mx-auto grid grid-cols-3 gap-8 text-sm" id="dropdown-content">
+                <!-- Dynamically populated via JS based on hovered item -->
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE NAVIGATION OVERLAY -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black z-40 transform translate-x-full transition-transform duration-500 md:hidden pt-20 px-8 overflow-y-auto">
+        <div class="flex flex-col space-y-6 text-2xl font-semibold text-white/90">
+            <a href="#store" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">Store</a>
+            <a href="#mac" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">Mac</a>
+            <a href="#ipad" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">iPad</a>
+            <a href="#iphone" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">iPhone</a>
+            <a href="#watch" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">Watch</a>
+            <a href="#vision" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">Vision</a>
+            <a href="#airpods" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">AirPods</a>
+            <a href="#tv-home" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">TV & Home</a>
+            <a href="#entertainment" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">Entertainment</a>
+            <a href="#accessories" class="mobile-link hover:text-blue-500 transition border-b border-white/10 pb-4">Accessories</a>
+            <a href="#support" class="mobile-link hover:text-blue-500 transition pb-8">Support</a>
+        </div>
+    </div>
+
+    <!-- SEARCH MODAL OVERLAY -->
+    <div id="search-modal" class="fixed inset-0 bg-black/95 z-50 opacity-0 pointer-events-none transition-all duration-300 flex flex-col pt-16 px-6">
+        <div class="max-w-[700px] w-full mx-auto">
+            <div class="relative flex items-center border-b border-white/30 pb-4">
+                <i class="fa-solid fa-magnifying-glass text-white/50 text-xl mr-4"></i>
+                <input type="text" id="search-input" placeholder="Search apple.com or help topics" class="w-full bg-transparent text-white text-2xl placeholder-white/40 focus:outline-none">
+                <button id="close-search" class="text-white/60 hover:text-white text-2xl ml-4"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="mt-8">
+                <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider mb-4">Quick Links</h3>
+                <div class="flex flex-wrap gap-3" id="quick-links">
+                    <span class="bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full cursor-pointer transition">iPhone 17 Pro</span>
+                    <span class="bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full cursor-pointer transition">MacBook Pro M4</span>
+                    <span class="bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full cursor-pointer transition">Apple Vision Pro</span>
+                    <span class="bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full cursor-pointer transition">Apple Watch Series 11</span>
+                    <span class="bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full cursor-pointer transition">AirPods Pro 3</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHOPPING BAG SIDE DRAWER -->
+    <div id="bag-drawer" class="fixed inset-0 z-50 pointer-events-none">
+        <div id="bag-backdrop" class="absolute inset-0 bg-black/60 opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+        <div id="bag-panel" class="absolute top-0 right-0 w-full max-w-md h-full bg-[#1d1d1f] border-l border-white/10 transform translate-x-full transition-transform duration-300 flex flex-col pointer-events-auto shadow-2xl">
+            <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                <h2 class="text-xl font-semibold">Your Bag</h2>
+                <button id="close-bag" class="text-white/60 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="bag-items-container" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <div class="text-center py-20 text-white/50">
+                    <i class="fa-solid fa-bag-shopping text-4xl mb-4"></i>
+                    <p class="text-lg">Your Bag is empty.</p>
+                </div>
+            </div>
+            <div id="bag-footer" class="p-6 border-t border-white/10 hidden">
+                <div class="flex justify-between text-lg font-semibold mb-4">
+                    <span>Total:</span>
+                    <span id="bag-total">$0.00</span>
+                </div>
+                <button class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition shadow-lg">Check Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB-BANNER / ANNOUNCEMENT -->
+    <div class="bg-[#1d1d1f] text-center py-3 px-4 text-xs text-white/80 mt-12 border-b border-white/10">
+        Get $180-$650 in credit when you trade in iPhone 13 or higher. <a href="#" class="text-blue-400 hover:underline">Shop iPhone <i class="fa-solid fa-angle-right text-[10px]"></i></a>
+    </div>
+
+    <!-- HERO SECTION: IPHONE -->
+    <section id="iphone" class="relative min-h-[90vh] flex flex-col items-center justify-between text-center pt-20 pb-12 overflow-hidden bg-gradient-to-b from-black via-[#0a0a0c] to-[#121215]">
+        <div class="z-10 max-w-4xl mx-auto px-4 reveal">
+            <span class="text-amber-500 text-sm font-semibold uppercase tracking-widest mb-2 block">New</span>
+            <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white mb-3">iPhone 17 Pro</h1>
+            <p class="text-xl md:text-2xl text-white/70 max-w-2xl mx-auto font-normal mb-8">Titanium. So strong. So light. So Pro. Powered by the groundbreaking M5 mobile architecture.</p>
+            <div class="flex items-center justify-center space-x-4">
+                <a href="#" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-full transition text-sm shadow-lg add-to-bag" data-name="iPhone 17 Pro" data-price="999">Buy</a>
+                <a href="#" class="border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white font-medium px-5 py-2.5 rounded-full transition text-sm">Learn more</a>
+            </div>
+        </div>
+        <!-- Product Image with Parallax & Scale Effect -->
+        <div class="relative z-10 w-full max-w-5xl mx-auto px-4 mt-8 reveal">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHVF_xI0ytzBSlVqNk6OzZKcPsSSLIZxse69rq2uiG1dX4QRncX4zg4eXN&s=10" alt="iPhone 17 Pro" class="w-full h-auto rounded-3xl shadow-2xl border border-white/10 object-cover transform hover:scale-[1.01] transition duration-700">
+        </div>
+    </section>
+
+    <!-- MACBOOK SECTION -->
+    <section id="mac" class="relative min-h-[90vh] flex flex-col items-center justify-between text-center py-20 bg-[#000] overflow-hidden border-t border-white/10">
+        <div class="z-10 max-w-4xl mx-auto px-4 reveal">
+            <h2 class="text-4xl md:text-6xl font-bold tracking-tight text-white mb-3">MacBook Pro</h2>
+            <p class="text-lg md:text-xl text-white/70 max-w-2xl mx-auto font-normal mb-8">Mind-blowing. Head-turning. Built for Apple Intelligence and supreme professional workflows.</p>
+            <div class="flex items-center justify-center space-x-4">
+                <a href="#" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-full transition text-sm shadow-lg add-to-bag" data-name="MacBook Pro M4" data-price="1599">Buy</a>
+                <a href="#" class="border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white font-medium px-5 py-2.5 rounded-full transition text-sm">Learn more</a>
+            </div>
+        </div>
+        <div class="relative z-10 w-full max-w-5xl mx-auto px-4 mt-8 reveal">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRmdDxRKFyNHQjwILiYm5b4PYvp6xPP5c70Y8V8s9COAQZde9_h1fvCOrY&s=10" alt="MacBook Pro" class="w-full h-auto rounded-3xl shadow-2xl border border-white/10 object-cover transform hover:scale-[1.01] transition duration-700">
+        </div>
+    </section>
+
+    <!-- IPAD SECTION -->
+    <section id="ipad" class="relative min-h-[90vh] flex flex-col items-center justify-between text-center py-20 bg-gradient-to-b from-black to-[#0d0d12] overflow-hidden border-t border-white/10">
+        <div class="z-10 max-w-4xl mx-auto px-4 reveal">
+            <span class="text-purple-400 text-sm font-semibold uppercase tracking-widest mb-2 block">Thinpossible</span>
+            <h2 class="text-4xl md:text-6xl font-bold tracking-tight text-white mb-3">iPad Pro</h2>
+            <p class="text-lg md:text-xl text-white/70 max-w-2xl mx-auto font-normal mb-8">The ultimate iPad experience with the world's most advanced Ultra Retina XDR display.</p>
+            <div class="flex items-center justify-center space-x-4">
+                <a href="#" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-full transition text-sm shadow-lg add-to-bag" data-name="iPad Pro M4" data-price="999">Buy</a>
+                <a href="#" class="border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white font-medium px-5 py-2.5 rounded-full transition text-sm">Learn more</a>
+            </div>
+        </div>
+        <div class="relative z-10 w-full max-w-4xl mx-auto px-4 mt-8 reveal">
+            <img src="https://radius.uz/_next/image?url=https%3A%2F%2Fnew.api.radius.uz%2Fmedia%2Fimages%2Fproduct%2F1d6f57bb4858432ba20bec61cf282166.webp&w=1024&q=75" alt="iPad Pro" class="w-full h-auto rounded-3xl shadow-2xl border border-white/10 object-cover transform hover:scale-[1.01] transition duration-700">
+        </div>
+    </section>
+
+    <!-- APPLE WATCH SECTION -->
+    <section id="watch" class="relative min-h-[90vh] flex flex-col items-center justify-between text-center py-20 bg-black overflow-hidden border-t border-white/10">
+        <div class="z-10 max-w-4xl mx-auto px-4 reveal">
+            <div class="flex items-center justify-center space-x-2 mb-2">
+                <i class="fa-solid fa-earth-americas text-red-500 text-xl"></i>
+                <span class="text-red-500 text-sm font-semibold uppercase tracking-widest">ULTRA SERIES</span>
+            </div>
+            <h2 class="text-4xl md:text-6xl font-bold tracking-tight text-white mb-3">Apple Watch Series 11</h2>
+            <p class="text-lg md:text-xl text-white/70 max-w-2xl mx-auto font-normal mb-8">Thinscredibles. Advanced health sensors. Ultimate fitness companion.</p>
+            <div class="flex items-center justify-center space-x-4">
+                <a href="#" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-full transition text-sm shadow-lg add-to-bag" data-name="Apple Watch Series 11" data-price="399">Buy</a>
+                <a href="#" class="border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white font-medium px-5 py-2.5 rounded-full transition text-sm">Learn more</a>
+            </div>
+        </div>
+        <div class="relative z-10 w-full max-w-4xl mx-auto px-4 mt-8 reveal">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM-glFohCbGolugXKkPZxo2L2iD11aM0463qcob3Q7Vg&s=10" alt="Apple Watch" class="w-full h-auto rounded-3xl shadow-2xl border border-white/10 object-cover transform hover:scale-[1.01] transition duration-700">
+        </div>
+    </section>
+
+    <!-- APPLE VISION PRO SECTION -->
+    <section id="vision" class="relative min-h-[90vh] flex flex-col items-center justify-between text-center py-20 bg-gradient-to-b from-black via-[#111116] to-black overflow-hidden border-t border-white/10">
+        <div class="z-10 max-w-4xl mx-auto px-4 reveal">
+            <span class="text-amber-300 text-sm font-semibold uppercase tracking-widest mb-2 block">Spatial Computing</span>
+            <h2 class="text-4xl md:text-6xl font-bold tracking-tight text-white mb-3">Apple Vision Pro</h2>
+            <p class="text-lg md:text-xl text-white/70 max-w-2xl mx-auto font-normal mb-8">Welcome to the era of spatial computing. Seamlessly blend digital content with your physical space.</p>
+            <div class="flex items-center justify-center space-x-4">
+                <a href="#" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-full transition text-sm shadow-lg add-to-bag" data-name="Apple Vision Pro" data-price="3499">Buy</a>
+                <a href="#" class="border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white font-medium px-5 py-2.5 rounded-full transition text-sm">Learn more</a>
+            </div>
+        </div>
+        <div class="relative z-10 w-full max-w-4xl mx-auto px-4 mt-8 reveal glow-effect rounded-3xl">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrneomyn7m6BWvrtbXj3wlWkCg9zsT1n84QJel-Lmxf6PawEi57YG39vQ&s=10" alt="Apple Vision Pro" class="w-full h-auto rounded-3xl shadow-2xl border border-white/20 object-cover transform hover:scale-[1.01] transition duration-700">
+        </div>
+    </section>
+
+    <!-- AIRPODS SECTION -->
+    <section id="airpods" class="relative min-h-[85vh] flex flex-col items-center justify-between text-center py-20 bg-black overflow-hidden border-t border-white/10">
+        <div class="z-10 max-w-4xl mx-auto px-4 reveal">
+            <h2 class="text-4xl md:text-6xl font-bold tracking-tight text-white mb-3">AirPods Pro 3</h2>
+            <p class="text-lg md:text-xl text-white/70 max-w-2xl mx-auto font-normal mb-8">Active Noise Cancellation. Adaptive Audio. Pure spatial acoustic harmony.</p>
+            <div class="flex items-center justify-center space-x-4">
+                <a href="#" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-full transition text-sm shadow-lg add-to-bag" data-name="AirPods Pro 3" data-price="249">Buy</a>
+                <a href="#" class="border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white font-medium px-5 py-2.5 rounded-full transition text-sm">Learn more</a>
+            </div>
+        </div>
+        <div class="relative z-10 w-full max-w-3xl mx-auto px-4 mt-8 reveal">
+            <img src="https://placehold.co/900x450/141417/fff?text=AirPods+Pro+3" alt="AirPods" class="w-full h-auto rounded-3xl shadow-2xl border border-white/10 object-cover transform hover:scale-[1.01] transition duration-700">
+        </div>
+    </section>
+
+    <!-- PRODUCT GRID SECTION (6 Main Categories) -->
+    <section id="store" class="py-20 bg-[#0f0f11] border-t border-white/10">
+        <div class="max-w-[1280px] mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">Explore All Products</h2>
+                <p class="text-white/60 text-lg">Choose your next Apple device with confidence.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-[#18181b] border border-white/10 rounded-3xl p-8 flex flex-col justify-between reveal hover:border-white/30 transition">
+                    <div>
+                        <span class="text-amber-400 text-xs font-bold uppercase tracking-wider">iPhone</span>
+                        <h3 class="text-2xl font-bold mt-1 mb-2">iPhone 17 Lineup</h3>
+                        <p class="text-white/60 text-sm mb-6">Designed to be loved. High performance cameras & battery.</p>
+                    </div>
+                    <img src="https://placehold.co/500x300/222/fff?text=iPhone+Grid" alt="iPhone" class="rounded-xl mb-6 object-cover w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-semibold">From $799</span>
+                        <div class="space-x-3">
+                            <a href="#iphone" class="text-blue-400 hover:underline text-sm font-medium">Learn more</a>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-full text-xs font-medium add-to-bag" data-name="iPhone 17" data-price="799">Buy</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-[#18181b] border border-white/10 rounded-3xl p-8 flex flex-col justify-between reveal hover:border-white/30 transition">
+                    <div>
+                        <span class="text-blue-400 text-xs font-bold uppercase tracking-wider">Mac</span>
+                        <h3 class="text-2xl font-bold mt-1 mb-2">MacBook Air & Pro</h3>
+                        <p class="text-white/60 text-sm mb-6">Supercharged by M-series chips for unbelievable speed.</p>
+                    </div>
+                    <img src="https://placehold.co/500x300/222/fff?text=Mac+Grid" alt="Mac" class="rounded-xl mb-6 object-cover w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-semibold">From $1,099</span>
+                        <div class="space-x-3">
+                            <a href="#mac" class="text-blue-400 hover:underline text-sm font-medium">Learn more</a>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-full text-xs font-medium add-to-bag" data-name="MacBook Air" data-price="1099">Buy</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-[#18181b] border border-white/10 rounded-3xl p-8 flex flex-col justify-between reveal hover:border-white/30 transition">
+                    <div>
+                        <span class="text-purple-400 text-xs font-bold uppercase tracking-wider">iPad</span>
+                        <h3 class="text-2xl font-bold mt-1 mb-2">iPad Air & Pro</h3>
+                        <p class="text-white/60 text-sm mb-6">Versatile, lightweight, and powerful enough for any canvas.</p>
+                    </div>
+                    <img src="https://placehold.co/500x300/222/fff?text=iPad+Grid" alt="iPad" class="rounded-xl mb-6 object-cover w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-semibold">From $599</span>
+                        <div class="space-x-3">
+                            <a href="#ipad" class="text-blue-400 hover:underline text-sm font-medium">Learn more</a>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-full text-xs font-medium add-to-bag" data-name="iPad Air" data-price="599">Buy</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="bg-[#18181b] border border-white/10 rounded-3xl p-8 flex flex-col justify-between reveal hover:border-white/30 transition">
+                    <div>
+                        <span class="text-red-400 text-xs font-bold uppercase tracking-wider">Watch</span>
+                        <h3 class="text-2xl font-bold mt-1 mb-2">Apple Watch</h3>
+                        <p class="text-white/60 text-sm mb-6">The ultimate device for a healthy, connected life.</p>
+                    </div>
+                    <img src="https://placehold.co/500x300/222/fff?text=Watch+Grid" alt="Watch" class="rounded-xl mb-6 object-cover w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-semibold">From $399</span>
+                        <div class="space-x-3">
+                            <a href="#watch" class="text-blue-400 hover:underline text-sm font-medium">Learn more</a>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-full text-xs font-medium add-to-bag" data-name="Apple Watch SE" data-price="249">Buy</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 5 -->
+                <div class="bg-[#18181b] border border-white/10 rounded-3xl p-8 flex flex-col justify-between reveal hover:border-white/30 transition">
+                    <div>
+                        <span class="text-green-400 text-xs font-bold uppercase tracking-wider">Audio</span>
+                        <h3 class="text-2xl font-bold mt-1 mb-2">AirPods & Max</h3>
+                        <p class="text-white/60 text-sm mb-6">Immersive high-fidelity audio engineered for every ear.</p>
+                    </div>
+                    <img src="https://placehold.co/500x300/222/fff?text=AirPods+Grid" alt="AirPods" class="rounded-xl mb-6 object-cover w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-semibold">From $179</span>
+                        <div class="space-x-3">
+                            <a href="#airpods" class="text-blue-400 hover:underline text-sm font-medium">Learn more</a>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-full text-xs font-medium add-to-bag" data-name="AirPods 4" data-price="179">Buy</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 6 -->
+                <div class="bg-[#18181b] border border-white/10 rounded-3xl p-8 flex flex-col justify-between reveal hover:border-white/30 transition">
+                    <div>
+                        <span class="text-amber-300 text-xs font-bold uppercase tracking-wider">Vision</span>
+                        <h3 class="text-2xl font-bold mt-1 mb-2">Vision Pro</h3>
+                        <p class="text-white/60 text-sm mb-6">Infinite canvas for apps and entertainment.</p>
+                    </div>
+                    <img src="https://placehold.co/500x300/222/fff?text=Vision+Grid" alt="Vision" class="rounded-xl mb-6 object-cover w-full">
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-semibold">From $3,499</span>
+                        <div class="space-x-3">
+                            <a href="#vision" class="text-blue-400 hover:underline text-sm font-medium">Learn more</a>
+                            <button class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-full text-xs font-medium add-to-bag" data-name="Vision Pro Spec" data-price="3499">Buy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ENTERTAINMENT SECTION (Apple TV+ Horizontal Carousel) -->
+    <section id="entertainment" class="py-24 bg-black border-t border-white/10">
+        <div class="max-w-[1400px] mx-auto px-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 reveal">
+                <div>
+                    <span class="text-blue-500 font-semibold uppercase tracking-widest text-xs mb-2 block">Apple TV+</span>
+                    <h2 class="text-4xl md:text-5xl font-bold">Stream critically acclaimed Apple Originals</h2>
+                </div>
+                <div class="flex space-x-3 mt-6 md:mt-0">
+                    <button id="slider-prev" class="bg-white/10 hover:bg-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center transition" aria-label="Previous Slide">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button id="slider-next" class="bg-white/10 hover:bg-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center transition" aria-label="Next Slide">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carousel Track with Mouse Drag & Touch Support -->
+            <div id="carousel-track" class="flex space-x-6 overflow-x-auto no-scrollbar scroll-smooth pb-8 cursor-grab active:cursor-grabbing">
+                <!-- Item 1 -->
+                <div class="min-w-[320px] md:min-w-[480px] bg-[#141417] rounded-3xl overflow-hidden border border-white/10 flex-shrink-0 reveal">
+                    <img src="https://placehold.co/600x340/1a1a22/fff?text=Severance+Season+2" alt="Severance" class="w-full h-[300px] object-cover">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-amber-400 font-bold uppercase">Thriller</span>
+                            <span class="text-xs text-white/50">New Season</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Severance</h3>
+                        <p class="text-white/60 text-sm mb-6">Mark leads a team of office workers whose memories have been surgically divided.</p>
+                        <button class="bg-white text-black hover:bg-white/90 font-semibold px-6 py-2.5 rounded-full text-sm transition">Stream Now</button>
+                    </div>
+                </div>
+                <!-- Item 2 -->
+                <div class="min-w-[320px] md:min-w-[480px] bg-[#141417] rounded-3xl overflow-hidden border border-white/10 flex-shrink-0 reveal">
+                    <img src="https://placehold.co/600x340/1a1a22/fff?text=Ted+Lasso+Final" alt="Ted Lasso" class="w-full h-[300px] object-cover">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-blue-400 font-bold uppercase">Comedy</span>
+                            <span class="text-xs text-white/50">Emmy Winner</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Ted Lasso</h3>
+                        <p class="text-white/60 text-sm mb-6">An American football coach is hired to manage a British soccer team.</p>
+                        <button class="bg-white text-black hover:bg-white/90 font-semibold px-6 py-2.5 rounded-full text-sm transition">Stream Now</button>
+                    </div>
+                </div>
+                <!-- Item 3 -->
+                <div class="min-w-[320px] md:min-w-[480px] bg-[#141417] rounded-3xl overflow-hidden border border-white/10 flex-shrink-0 reveal">
+                    <img src="https://placehold.co/600x340/1a1a22/fff?text=The+Morning+Show" alt="The Morning Show" class="w-full h-[300px] object-cover">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-purple-400 font-bold uppercase">Drama</span>
+                            <span class="text-xs text-white/50">Starring Jennifer Aniston</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">The Morning Show</h3>
+                        <p class="text-white/60 text-sm mb-6">An unapologetically candid look at the modern workplace through the lens of morning TV.</p>
+                        <button class="bg-white text-black hover:bg-white/90 font-semibold px-6 py-2.5 rounded-full text-sm transition">Stream Now</button>
+                    </div>
+                </div>
+                <!-- Item 4 -->
+                <div class="min-w-[320px] md:min-w-[480px] bg-[#141417] rounded-3xl overflow-hidden border border-white/10 flex-shrink-0 reveal">
+                    <img src="https://placehold.co/600x340/1a1a22/fff?text=Foundation+SciFi" alt="Foundation" class="w-full h-[300px] object-cover">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-green-400 font-bold uppercase">Sci-Fi Epic</span>
+                            <span class="text-xs text-white/50">Visual Masterpiece</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Foundation</h3>
+                        <p class="text-white/60 text-sm mb-6">Dr. Hari Seldon predicts the fall of the Galactic Empire and creates the Foundation.</p>
+                        <button class="bg-white text-black hover:bg-white/90 font-semibold px-6 py-2.5 rounded-full text-sm transition">Stream Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="support" class="bg-[#161617] text-white/60 text-xs py-12 border-t border-white/10">
+        <div class="max-w-[1024px] mx-auto px-4">
+            <div class="border-b border-white/10 pb-6 mb-6 leading-relaxed">
+                <p>1. Trade-in values will vary based on the condition, year, and configuration of your eligible trade-in device. Not all devices are eligible for credit. You must be at least 18 years old to be eligible to trade in for credit or for an Apple Gift Card.</p>
+                <p class="mt-3">Apple Vision Pro has not been FCC authorized as required by the rules of the Federal Communications Commission. This device is not, and may not be, offered for sale or lease...</p>
+            </div>
+
+            <!-- Footer Links Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Shop and Learn</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#store" class="hover:text-white transition">Store</a></li>
+                        <li><a href="#mac" class="hover:text-white transition">Mac</a></li>
+                        <li><a href="#ipad" class="hover:text-white transition">iPad</a></li>
+                        <li><a href="#iphone" class="hover:text-white transition">iPhone</a></li>
+                        <li><a href="#watch" class="hover:text-white transition">Watch</a></li>
+                        <li><a href="#vision" class="hover:text-white transition">Vision</a></li>
+                        <li><a href="#airpods" class="hover:text-white transition">AirPods</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Account & Wallet</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Manage Your Apple ID</a></li>
+                        <li><a href="#" class="hover:text-white transition">Apple Store Account</a></li>
+                        <li><a href="#" class="hover:text-white transition">Apple Card</a></li>
+                        <li><a href="#" class="hover:text-white transition">Apple Pay</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Entertainment</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#entertainment" class="hover:text-white transition">Apple TV+</a></li>
+                        <li><a href="#" class="hover:text-white transition">Apple Music</a></li>
+                        <li><a href="#" class="hover:text-white transition">Apple Arcade</a></li>
+                        <li><a href="#" class="hover:text-white transition">Apple Podcasts</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Apple Store</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Find a Store</a></li>
+                        <li><a href="#" class="hover:text-white transition">Genius Bar</a></li>
+                        <li><a href="#" class="hover:text-white transition">Today at Apple</a></li>
+                        <li><a href="#" class="hover:text-white transition">Order Status</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">About Apple</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Newsroom</a></li>
+                        <li><a href="#" class="hover:text-white transition">Apple Leadership</a></li>
+                        <li><a href="#" class="hover:text-white transition">Career Opportunities</a></li>
+                        <li><a href="#" class="hover:text-white transition">Investors & Ethics</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between border-t border-white/10 pt-6">
+                <p>Copyright &copy; 2026 Apple Inc. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition">Terms of Use</a>
+                    <a href="#" class="hover:text-white transition">Sales Policy</a>
+                    <a href="#" class="hover:text-white transition">Legal</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BACK TO TOP BUTTON -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 z-40 shadow-lg" aria-label="Back to top">
+        <i class="fa-solid fa-arrow-up text-sm"></i>
+    </button>
+
+    <!-- VANILLA JAVASCRIPT LOGIC -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. MEGA MENU / DROPDOWN DATA & LOGIC
+            const megaData = {
+                store: {
+                    col1: ["Shop the Latest", "Mac", "iPad", "iPhone", "Apple Watch", "Accessories"],
+                    col2: ["Quick Links", "Find a Store", "Order Status", "Apple Trade In", "Financing"],
+                    col3: ["Shop Special Stores", "Certified Refurbished", "Education", "Business"]
+                },
+                mac: {
+                    col1: ["Explore Mac", "Explore All Mac", "MacBook Air", "MacBook Pro", "iMac", "Mac mini", "Mac Studio", "Mac Pro", "Displays"],
+                    col2: ["Shop Mac", "Shop Mac", "Mac Accessories", "Apple Trade In", "Financing"],
+                    col3: ["More from Mac", "Mac Support", "AppleCare+", "macOS Tahoe", "Apps by Apple"]
+                },
+                ipad: {
+                    col1: ["Explore iPad", "Explore All iPad", "iPad Pro", "iPad Air", "iPad", "iPad mini", "Apple Pencil", "Keyboards"],
+                    col2: ["Shop iPad", "Shop iPad", "iPad Accessories", "Financial Options"],
+                    col3: ["More from iPad", "iPad Support", "AppleCare+", "iPadOS 19", "Swift Playgrounds"]
+                },
+                iphone: {
+                    col1: ["Explore iPhone", "Explore All iPhone", "iPhone 17 Pro", "iPhone 17", "iPhone 16", "iPhone SE"],
+                    col2: ["Shop iPhone", "iPhone Accessories", "Apple Trade In", "Carrier Deals"],
+                    col3: ["More from iPhone", "iPhone Support", "AppleCare+", "iOS 19", "Wallet"]
+                },
+                watch: {
+                    col1: ["Explore Watch", "Explore All Apple Watch", "Apple Watch Series 11", "Apple Watch Ultra 3", "Apple Watch SE", "Apple Watch Nike"],
+                    col2: ["Shop Watch", "Apple Watch Accessories", "Ways to Buy"],
+                    col3: ["More from Watch", "Apple Watch Support", "AppleCare+", "watchOS 12"]
+                },
+                vision: {
+                    col1: ["Explore Vision", "Explore Apple Vision Pro", "Guided Tour", "Tech Specs"],
+                    col2: ["Shop Vision", "Shop Apple Vision Pro", "Vision Pro Accessories", "Book a Demo"],
+                    col3: ["More from Vision", "Vision Pro Support", "AppleCare+", "visionOS"]
+                },
+                airpods: {
+                    col1: ["Explore AirPods", "Explore All AirPods", "AirPods Pro 3", "AirPods 4", "AirPods Max"],
+                    col2: ["Shop AirPods", "AirPods Accessories"],
+                    col3: ["More from AirPods", "AirPods Support", "AppleCare+", "Apple Music"]
+                },
+                tv: {
+                    col1: ["Explore TV & Home", "Apple TV 4K", "HomePod", "HomePod mini"],
+                    col2: ["Shop TV & Home", "Apple TV & Home Accessories"],
+                    col3: ["More from TV & Home", "Apple TV Support", "AppleCare+", "Apple TV app", "Apple Music"]
+                },
+                entertainment: {
+                    col1: ["Explore Entertainment", "Apple TV+", "Apple Music", "Apple Arcade", "Apple Fitness+", "Apple News+", "Apple Podcasts", "Apple Books"],
+                    col2: ["Support", "Apple TV+ Support", "Apple Music Support"],
+                    col3: ["Interactive", "Original Series", "Live Concerts"]
+                },
+                accessories: {
+                    col1: ["Shop Accessories", "Explore All Accessories", "Made by Apple", "Beats by Dre", "Charging", "Cases & Protection"],
+                    col2: ["Explore by Device", "Mac", "iPad", "iPhone", "Apple Watch", "Apple Vision Pro"],
+                    col3: ["Featured", "MagSafe", "AirTag"]
+                },
+                support: {
+                    col1: ["Explore Support", "iPhone Support", "Mac Support", "iPad Support", "Watch Support", "Apple ID & Password"],
+                    col2: ["Get Help", "Community", "Check Coverage", "Repair & Service"],
+                    col3: ["Helpful Topics", "Billing & Subscriptions", "Accessibility", "Contact Us"]
+                }
+            };
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const megaDropdown = document.getElementById('mega-dropdown');
+            const dropdownContent = document.getElementById('dropdown-content');
+            let dropdownTimeout;
+
+            navLinks.forEach(link => {
+                link.addEventListener('mouseenter', () => {
+                    clearTimeout(dropdownTimeout);
+                    const key = link.getAttribute('data-dropdown');
+                    if (megaData[key]) {
+                        dropdownContent.innerHTML = `
+                            <div>
+                                <h4 class="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">${megaData[key].col1[0]}</h4>
+                                <ul class="space-y-2 text-white/80">
+                                    ${megaData[key].col1.slice(1).map(item => `<li><a href="#" class="hover:text-white transition">${item}</a></li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">${megaData[key].col2[0]}</h4>
+                                <ul class="space-y-2 text-white/80">
+                                    ${megaData[key].col2.slice(1).map(item => `<li><a href="#" class="hover:text-white transition">${item}</a></li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">${megaData[key].col3[0]}</h4>
+                                <ul class="space-y-2 text-white/80">
+                                    ${megaData[key].col3.slice(1).map(item => `<li><a href="#" class="hover:text-white transition">${item}</a></li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                        megaDropdown.classList.remove('opacity-0', 'pointer-events-none');
+                    }
+                });
+
+                link.addEventListener('mouseleave', () => {
+                    dropdownTimeout = setTimeout(() => {
+                        megaDropdown.classList.add('opacity-0', 'pointer-events-none');
+                    }, 200);
+                });
+            });
+
+            megaDropdown.addEventListener('mouseenter', () => {
+                clearTimeout(dropdownTimeout);
+            });
+
+            megaDropdown.addEventListener('mouseleave', () => {
+                megaDropdown.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            // 2. MOBILE HAMBURGER NAVIGATION
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = mobileMenu.classList.toggle('translate-x-full');
+                menuIcon.className = isOpen ? 'fa-solid fa-bars' : 'fa-solid fa-xmark text-xl';
+            });
+
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('translate-x-full');
+                    menuIcon.className = 'fa-solid fa-bars';
+                });
+            });
+
+            // 3. SEARCH MODAL
+            const searchBtn = document.getElementById('search-btn');
+            const searchModal = document.getElementById('search-modal');
+            const closeSearch = document.getElementById('close-search');
+            const searchInput = document.getElementById('search-input');
+
+            searchBtn.addEventListener('click', () => {
+                searchModal.classList.remove('opacity-0', 'pointer-events-none');
+                setTimeout(() => searchInput.focus(), 100);
+            });
+
+            closeSearch.addEventListener('click', () => {
+                searchModal.classList.add('opacity-0', 'pointer-events-none');
+            });
+
+            // 4. SHOPPING BAG SIDE DRAWER & CART LOGIC
+            const bagBtn = document.getElementById('bag-btn');
+            const bagDrawer = document.getElementById('bag-drawer');
+            const bagBackdrop = document.getElementById('bag-backdrop');
+            const bagPanel = document.getElementById('bag-panel');
+            const closeBag = document.getElementById('close-bag');
+            const bagItemsContainer = document.getElementById('bag-items-container');
+            const bagFooter = document.getElementById('bag-footer');
+            const bagCount = document.getElementById('bag-count');
+            const bagTotal = document.getElementById('bag-total');
+
+            let cart = [];
+
+            function openBag() {
+                bagDrawer.classList.remove('pointer-events-none');
+                bagBackdrop.classList.remove('opacity-0', 'pointer-events-none');
+                bagPanel.classList.remove('translate-x-full');
+            }
+
+            function closeBagDrawer() {
+                bagPanel.classList.add('translate-x-full');
+                bagBackdrop.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => bagDrawer.classList.add('pointer-events-none'), 300);
+            }
+
+            bagBtn.addEventListener('click', openBag);
+            closeBag.addEventListener('click', closeBagDrawer);
+            bagBackdrop.addEventListener('click', closeBagDrawer);
+
+            function updateCartUI() {
+                if (cart.length === 0) {
+                    bagItemsContainer.innerHTML = `
+                        <div class="text-center py-20 text-white/50">
+                            <i class="fa-solid fa-bag-shopping text-4xl mb-4"></i>
+                            <p class="text-lg">Your Bag is empty.</p>
+                        </div>
+                    `;
+                    bagFooter.classList.add('hidden');
+                    bagCount.classList.add('hidden');
+                } else {
+                    bagItemsContainer.innerHTML = cart.map((item, index) => `
+                        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                            <div>
+                                <h4 class="font-semibold text-white">${item.name}</h4>
+                                <p class="text-sm text-white/60">$${item.price}</p>
+                            </div>
+                            <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-300 text-sm"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `).join('');
+                    
+                    const total = cart.reduce((sum, item) => sum + item.price, 0);
+                    bagTotal.textContent = `$${total.toLocaleString()}`;
+                    bagFooter.classList.remove('hidden');
+                    bagCount.textContent = cart.length;
+                    bagCount.classList.remove('hidden');
+                }
+            }
+
+            window.removeFromCart = function(index) {
+                cart.splice(index, 1);
+                updateCartUI();
+            };
+
+            document.querySelectorAll('.add-to-bag').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const name = btn.getAttribute('data-name');
+                    const price = parseFloat(btn.getAttribute('data-price'));
+                    cart.push({ name, price });
+                    updateCartUI();
+                    openBag();
+                });
+            });
+
+            // 5. INTERSECTION OBSERVER FOR SCROLL REVEALS
+            const revealElements = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            revealElements.forEach(el => observer.observe(el));
+
+            // 6. ENTERTAINMENT CAROUSEL DRAG & TOUCH NAVIGATION
+            const track = document.getElementById('carousel-track');
+            const prevBtn = document.getElementById('slider-prev');
+            const nextBtn = document.getElementById('slider-next');
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            track.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - track.offsetLeft;
+                scrollLeft = track.scrollLeft;
+            });
+
+            track.addEventListener('mouseleave', () => isDown = false);
+            track.addEventListener('mouseup', () => isDown = false);
+
+            track.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - track.offsetLeft;
+                const walk = (x - startX) * 2;
+                track.scrollLeft = scrollLeft - walk;
+            });
+
+            nextBtn.addEventListener('click', () => {
+                track.scrollBy({ left: 500, behavior: 'smooth' });
+            });
+
+            prevBtn.addEventListener('click', () => {
+                track.scrollBy({ left: -500, behavior: 'smooth' });
+            });
+
+            // 7. BACK TO TOP BUTTON
+            const backToTop = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 600) {
+                    backToTop.classList.remove('opacity-0', 'pointer-events-none');
+                } else {
+                    backToTop.classList.add('opacity-0', 'pointer-events-none');
+                }
+            });
+
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
